@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import Providers from "./providers";
+import Topbar from "@/components/Topbar";
+import Sidebar from "@/components/Sidebar";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -29,15 +31,14 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
         <Providers>
+          <Topbar />
           <div className="min-h-screen flex">
-            <aside className="w-[240px] border-r p-4 hidden sm:block">
-              <nav className="flex flex-col gap-2 text-sm">
-                <a className="hover:underline" href="/">Dashboard</a>
-                <a className="hover:underline" href="/patients">Patients</a>
-                <a className="hover:underline" href="/appointments">Appointments</a>
-              </nav>
-            </aside>
-            <main className="flex-1 p-4">{children}</main>
+            <Sidebar />
+            <main className="flex-1 p-4">
+              <div className="mx-auto max-w-screen-2xl">
+                {children}
+              </div>
+            </main>
           </div>
         </Providers>
       </body>
