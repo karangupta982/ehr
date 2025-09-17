@@ -2,18 +2,14 @@ import axios from "axios";
 import { env } from "@/lib/env";
 import { getAccessToken, refreshAccessToken } from "@/lib/modmedAuth";
 
-interface Headers {
-  Authorization?: string;
-  "x-api-key"?: string;
-  "Content-Type"?: string;
-  Accept?: string;
-}
 
-interface RequestConfig {
-  headers?: Headers;
-  baseURL?: string;
-  timeout?: number;
-}
+// interface Headers {
+//   Authorization?: string;
+//   "x-api-key"?: string;
+//   "Content-Type"?: string;
+//   Accept?: string;
+// }
+
 
 // Cerbo (if you still need it)
 export const cerboClient = axios.create({
@@ -53,7 +49,6 @@ export const modmedClient = axios.create({
 //   return config;
 // });
 
-
 modmedClient.interceptors.request.use(async (config) => {
   const bearer = await getAccessToken();
   config.headers = config.headers ?? {};
@@ -75,7 +70,9 @@ modmedClient.interceptors.response.use(
         const token = await getAccessToken();
         (cfg.headers as any)["Authorization"] = `Bearer ${token}`;
         return modmedClient(cfg);
-      } catch (_) {}
+      } catch (err) {
+        console.log(err);
+      }
     }
     return Promise.reject(error);
   }
@@ -97,3 +94,7 @@ export function toApiError(error: unknown): ApiError {
   }
   return { status: 500, message: "Unknown error" };
 }
+
+
+
+

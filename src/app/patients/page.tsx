@@ -1,8 +1,7 @@
-
 "use client"
 
 import React, { useEffect, useMemo, useState, useCallback } from "react";
-import { Search, UserPlus, Edit2, Trash2, User, MapPin, Phone, Mail, X, Check, AlertCircle, Loader } from "lucide-react";
+import { Search, UserPlus, Edit2, Trash2, User, MapPin, Phone, X, Check, AlertCircle, Loader } from "lucide-react";
 
 // Types
 interface Patient {

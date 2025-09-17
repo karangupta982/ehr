@@ -1,6 +1,8 @@
 "use client"
 import React, { useEffect, useMemo, useState, useCallback } from "react";
 import { Calendar, Clock, User, MapPin, Filter, Plus, Edit2, X, Check, AlertCircle, Loader, Search, RefreshCw } from "lucide-react";
+import { APIError } from '@/types/fhir';
+import toast from "react-hot-toast";
 
 // Types
 interface Participant {
@@ -161,7 +163,8 @@ const ValidationUtils = {
       }
       
       return null;
-    } catch (e) {
+    } catch (err) {
+      toast.error(`Operation failed ${err} `);
       return "Invalid date format";
     }
   }
@@ -240,9 +243,11 @@ export default function EnhancedAppointmentManager() {
 
 const parseBundleToAppointments = useCallback((bundle: FHIRBundle): AppointmentResource[] => {
     if (!bundle?.entry) return [];
-    return bundle.entry.map(e => e.resource).filter((resource): resource is AppointmentResource => 
-      resource !== undefined && resource.id !== undefined
-    );
+    return bundle.entry
+      .map(entry => entry.resource)
+      .filter((resource): resource is AppointmentResource => 
+        resource !== undefined && resource.id !== undefined
+      );
 }, []);
 
   // Extract participant IDs
@@ -340,44 +345,24 @@ const parseBundleToAppointments = useCallback((bundle: FHIRBundle): AppointmentR
   }, []);
 
   // Handle ModMed API errors with comprehensive error mapping
-  const handleModMedError = useCallback((error: any, operation: string = "operation") => {
-    // console.error(`${operation} error:`, error);
-    
+  const handleModMedError = useCallback((error: unknown, operation: string = "operation") => {
     try {
+      const apiError = error as APIError;
+      
       // Handle FHIR OperationOutcome errors
-      if (error?.details?.resourceType === "OperationOutcome" && error.details.issue) {
-        const issues = Array.isArray(error.details.issue) ? error.details.issue : [error.details.issue];
+      if (apiError.details?.resourceType === "OperationOutcome" && apiError.details.issue) {
+        const issues = Array.isArray(apiError.details.issue) ? apiError.details.issue : [apiError.details.issue];
         
         for (const issue of issues) {
           const diagnostics = issue.diagnostics || '';
-          // const severity = issue.severity || 'error';
           
           // Map specific ModMed error patterns
-          if (diagnostics.includes("BOOKING_UNAVAILABLE") || diagnostics.includes("unavailable")) {
+          if (diagnostics.includes("BOOKING_UNAVAILABLE")) {
             addToast("Time slot is unavailable. Please choose a different time.", 'info');
             return;
           }
           
-          if (diagnostics.includes("appointment duration should be in increments of 5") || 
-              diagnostics.includes("duration") && diagnostics.includes("increment")) {
-            addToast("Appointment duration must be in 5-minute increments.", 'info');
-            return;
-          }
-          
-          if (diagnostics.includes("Invalid date/time format") || diagnostics.includes("date")) {
-            addToast("Invalid date format. Please check your selection.", 'info');
-            return;
-          }
-          
-          if (diagnostics.includes("missing required element") || diagnostics.includes("required")) {
-            addToast("Missing required information. Please fill in all fields.", 'info');
-            return;
-          }
-          
-          if (diagnostics.includes("conflict") || diagnostics.includes("overlap")) {
-            addToast("Schedule conflict detected. Please choose a different time.", 'info');
-            return;
-          }
+          // Add other specific error mappings here
           
           // Show specific diagnostics if available
           if (diagnostics) {
@@ -388,8 +373,8 @@ const parseBundleToAppointments = useCallback((bundle: FHIRBundle): AppointmentR
       }
       
       // Handle HTTP errors
-      if (error?.status) {
-        switch (error.status) {
+      if (apiError.status) {
+        switch (apiError.status) {
           case 400:
             addToast("Invalid request. Please check your input.", 'error');
             break;
@@ -412,22 +397,26 @@ const parseBundleToAppointments = useCallback((bundle: FHIRBundle): AppointmentR
             addToast("Server error. Please try again later.", 'error');
             break;
           default:
-            addToast(`${operation} failed with status ${error.status}`, 'error');
+            addToast(`${operation} failed with status ${apiError.status}`, 'error');
         }
         return;
       }
       
-      // Handle network errors
-      if (error?.name === 'NetworkError' || error?.message?.includes('fetch')) {
-        addToast("Network error. Please check your connection and try again.", 'error');
+      // Handle Error objects
+      if (error instanceof Error) {
+        if (error.name === 'AbortError') {
+          addToast('Request timed out. Please try again.', 'error');
+        } else {
+          addToast(error.message || `${operation} failed unexpectedly`, 'error');
+        }
         return;
       }
       
       // Fallback error message
-      const message = error?.message || `${operation} failed. Please try again.`;
-      addToast(message, 'error');
-    } catch (e) {
-      addToast(`${operation} failed unexpectedly. Please try again.`, 'error');
+      addToast(`${operation} failed. Please try again.`, 'error');
+    } catch (err) {
+      addToast(`${operation} failed unexpectedly. Please try again.`, 'info');
+      console.log(err)
     }
   }, [addToast]);
 
@@ -535,9 +524,8 @@ const parseBundleToAppointments = useCallback((bundle: FHIRBundle): AppointmentR
       clearTimeout(timeoutId);
 
       if (!res.ok) {
-        // const errorData = await res.json();
-        // throw { ...errorData, status: res.status };
-        addToast("Time Slot Unavailable. Change Time slot or data")
+        const errorData: APIError = await res.json();
+        throw errorData;
       }
 
       const newData = await res.json();
@@ -608,9 +596,8 @@ const parseBundleToAppointments = useCallback((bundle: FHIRBundle): AppointmentR
       clearTimeout(timeoutId);
 
       if (!res.ok) {
-        // const errorData = await res.json();
-        // throw { ...errorData, status: res.status };
-        addToast("Time slot unavailable, Change time slot or data",'info')
+        const errorData: APIError = await res.json();
+        throw errorData;
       }
       
       // Refresh appointments after successful reschedule
@@ -629,35 +616,35 @@ const parseBundleToAppointments = useCallback((bundle: FHIRBundle): AppointmentR
   }, [showRescheduleModal, rescheduleForm, validateRescheduleForm, hasConflict, formatDateTimeForFHIR, loadAppointments, handleModMedError, addToast]);
 
   // Cancel appointment (keeping for future implementation)
-  const handleCancelAppointment = useCallback(async (appointmentId: string) => {
-    if (!window.confirm('Are you sure you want to cancel this appointment?')) {
-      return;
-    }
+  // const handleCancelAppointment = useCallback(async (appointmentId: string) => {
+  //   if (!window.confirm('Are you sure you want to cancel this appointment?')) {
+  //     return;
+  //   }
 
-    try {
-      const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 30000);
+  //   try {
+  //     const controller = new AbortController();
+  //     const timeoutId = setTimeout(() => controller.abort(), 30000);
 
-      const res = await fetch(`/api/modmed/appointments?id=${appointmentId}`, { 
-        method: "DELETE",
-        signal: controller.signal
-      });
+  //     const res = await fetch(`/api/modmed/appointments?id=${appointmentId}`, { 
+  //       method: "DELETE",
+  //       signal: controller.signal
+  //     });
 
-      clearTimeout(timeoutId);
+  //     clearTimeout(timeoutId);
       
-      if (!res.ok) {
-        // const errorData = await res.json();
-        // throw { ...errorData, status: res.status };
-        addToast("Appointment Unavailable.", 'info')
-      }
+  //     if (!res.ok) {
+  //       // const errorData = await res.json();
+  //       // throw { ...errorData, status: res.status };
+  //       addToast("Appointment Unavailable.", 'info')
+  //     }
       
-      // Remove appointment from local state
-      setAppointments(prev => prev.filter(a => a.id !== appointmentId));
-      addToast('Appointment cancelled successfully', 'success');
-    } catch (error) {
-      handleModMedError(error, "Appointment cancellation");
-    }
-  }, [handleModMedError, addToast]);
+  //     // Remove appointment from local state
+  //     setAppointments(prev => prev.filter(a => a.id !== appointmentId));
+  //     addToast('Appointment cancelled successfully', 'success');
+  //   } catch (error) {
+  //     handleModMedError(error, "Appointment cancellation");
+  //   }
+  // }, [handleModMedError, addToast]);
 
   // Filter appointments with search functionality
   const filteredAppointments = useMemo(() => {

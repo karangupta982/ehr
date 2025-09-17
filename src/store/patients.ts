@@ -1,5 +1,15 @@
 import { create } from "zustand";
 
+// Define insurance record type
+interface InsuranceRecord {
+  plan?: string;
+  group?: string;
+  id?: string;
+  type?: string;
+  phone?: string;
+  notes?: string;
+}
+
 export type Patient = {
   object: string;
   id: string;
@@ -66,7 +76,7 @@ export type Patient = {
   middle_name?: string;
   created?: string;
   address?: { address1?: string; address2?: string; zip?: string; city?: string; state?: string; country?: string };
-  insurance?: Record<string, any>;
+  insurance?: InsuranceRecord;
 };
 
 type PatientsState = {
@@ -83,5 +93,26 @@ export const usePatientsStore = create<PatientsState>((set) => ({
       list: state.list.map((p) => (String(p.id) === String(id) ? updater(p) : p)),
     })),
 }));
+
+// Extend PatientData interface with required fields
+interface PatientData extends Patient {
+  id: string;
+  resourceType: string;
+}
+
+interface SearchResults {
+  data: PatientData[];
+  meta?: {
+    total?: number;
+  };
+}
+
+export const searchPatients = async (searchTerm: string): Promise<SearchResults> => {
+  const response = await fetch(`/api/patients/search?q=${encodeURIComponent(searchTerm)}`);
+  if (!response.ok) {
+    throw new Error('Search failed');
+  }
+  return response.json();
+};
 
 
