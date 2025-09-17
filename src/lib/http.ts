@@ -2,16 +2,37 @@ import axios from "axios";
 import { env } from "@/lib/env";
 import { getAccessToken, refreshAccessToken } from "@/lib/modmedAuth";
 
+interface Headers {
+  Authorization?: string;
+  "x-api-key"?: string;
+  "Content-Type"?: string;
+  Accept?: string;
+}
+
+interface RequestConfig {
+  headers?: Headers;
+  baseURL?: string;
+  timeout?: number;
+}
+
 // Cerbo (if you still need it)
 export const cerboClient = axios.create({
   baseURL: env.CERBO_BASE_URL,
   timeout: 20000,
 });
+// cerboClient.interceptors.request.use((config) => {
+//   const token = Buffer.from(`${env.CERBO_USERNAME}:${env.CERBO_SECRET_KEY}`).toString("base64");
+//   config.headers = config.headers ?? {};
+//   (config.headers as any)["Authorization"] = `Basic ${token}`;
+//   (config.headers as any)["Content-Type"] = "application/json";
+//   return config;
+// });
+
 cerboClient.interceptors.request.use((config) => {
   const token = Buffer.from(`${env.CERBO_USERNAME}:${env.CERBO_SECRET_KEY}`).toString("base64");
   config.headers = config.headers ?? {};
-  (config.headers as any)["Authorization"] = `Basic ${token}`;
-  (config.headers as any)["Content-Type"] = "application/json";
+  config.headers["Authorization"] = `Basic ${token}`;
+  config.headers["Content-Type"] = "application/json";
   return config;
 });
 
@@ -21,14 +42,25 @@ export const modmedClient = axios.create({
   timeout: 20000,
 });
 
+// modmedClient.interceptors.request.use(async (config) => {
+//   config.headers = config.headers ?? {};
+//   const bearer = await getAccessToken();
+// //   console.log("➡️ Using Access Token:", bearer);
+//   (config.headers as any)["Authorization"] = `Bearer ${bearer}`;
+//   (config.headers as any)["x-api-key"] = env.MODMED_API_KEY;
+//   (config.headers as any)["Content-Type"] = "application/json";
+//   (config.headers as any)["Accept"] = "application/fhir+json";
+//   return config;
+// });
+
+
 modmedClient.interceptors.request.use(async (config) => {
-  config.headers = config.headers ?? {};
   const bearer = await getAccessToken();
-//   console.log("➡️ Using Access Token:", bearer);
-  (config.headers as any)["Authorization"] = `Bearer ${bearer}`;
-  (config.headers as any)["x-api-key"] = env.MODMED_API_KEY;
-  (config.headers as any)["Content-Type"] = "application/json";
-  (config.headers as any)["Accept"] = "application/fhir+json";
+  config.headers = config.headers ?? {};
+  config.headers["Authorization"] = `Bearer ${bearer}`;
+  config.headers["x-api-key"] = env.MODMED_API_KEY;
+  config.headers["Content-Type"] = "application/json";
+  config.headers["Accept"] = "application/fhir+json";
   return config;
 });
 

@@ -227,10 +227,23 @@ export default function EnhancedAppointmentManager() {
   }, []);
 
   // Parse API Bundle to appointments array
-  const parseBundleToAppointments = useCallback((bundle: any): AppointmentResource[] => {
-    if (!bundle || !bundle.entry) return [];
-    return bundle.entry.map((e: any) => e.resource).filter((resource: any) => resource && resource.id);
-  }, []);
+  // const parseBundleToAppointments = useCallback((bundle: any): AppointmentResource[] => {
+  //   if (!bundle || !bundle.entry) return [];
+  //   return bundle.entry.map((e: any) => e.resource).filter((resource: any) => resource && resource.id);
+  // }, []);
+
+  interface FHIRBundle {
+  entry?: Array<{
+    resource: AppointmentResource;
+  }>;
+}
+
+const parseBundleToAppointments = useCallback((bundle: FHIRBundle): AppointmentResource[] => {
+    if (!bundle?.entry) return [];
+    return bundle.entry.map(e => e.resource).filter((resource): resource is AppointmentResource => 
+      resource !== undefined && resource.id !== undefined
+    );
+}, []);
 
   // Extract participant IDs
   const extractIds = useCallback((participants?: Participant[]) => {
@@ -337,7 +350,7 @@ export default function EnhancedAppointmentManager() {
         
         for (const issue of issues) {
           const diagnostics = issue.diagnostics || '';
-          const severity = issue.severity || 'error';
+          // const severity = issue.severity || 'error';
           
           // Map specific ModMed error patterns
           if (diagnostics.includes("BOOKING_UNAVAILABLE") || diagnostics.includes("unavailable")) {
@@ -522,7 +535,7 @@ export default function EnhancedAppointmentManager() {
       clearTimeout(timeoutId);
 
       if (!res.ok) {
-        const errorData = await res.json();
+        // const errorData = await res.json();
         // throw { ...errorData, status: res.status };
         addToast("Time Slot Unavailable. Change Time slot or data")
       }
@@ -595,7 +608,7 @@ export default function EnhancedAppointmentManager() {
       clearTimeout(timeoutId);
 
       if (!res.ok) {
-        const errorData = await res.json();
+        // const errorData = await res.json();
         // throw { ...errorData, status: res.status };
         addToast("Time slot unavailable, Change time slot or data",'info')
       }
@@ -633,7 +646,7 @@ export default function EnhancedAppointmentManager() {
       clearTimeout(timeoutId);
       
       if (!res.ok) {
-        const errorData = await res.json();
+        // const errorData = await res.json();
         // throw { ...errorData, status: res.status };
         addToast("Appointment Unavailable.", 'info')
       }

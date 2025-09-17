@@ -50,7 +50,7 @@ export type Patient = {
   drivers_license_state?: string | null;
   ethnicity?: string | null;
   pronouns?: string | null;
-  opt_in_preferences?: any;
+  opt_in_preferences?: Record<string, unknown>;
   tags?: Array<{ name: string; tag_category?: string; notes?: string; date_applied?: string }>;
   primary_provider_id?: number | null;
   timezone?: string;
