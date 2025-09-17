@@ -1,82 +1,3 @@
-// import { NextRequest } from "next/server";
-// import { z } from "zod";
-// import { modmedClient, toApiError } from "@/lib/http";
-
-
-
-// const listSchema = z.object({
-// 	date: z.string().optional(),
-// 	providerId: z.string().optional(),
-// 	patientId: z.string().optional(),
-// });
-
-// export async function GET(req: NextRequest) {
-// 	const { searchParams } = new URL(req.url);
-// 	const parsed = listSchema.safeParse({
-// 		date: searchParams.get("date") ?? undefined,
-// 		providerId: searchParams.get("providerId") ?? undefined,
-// 		patientId: searchParams.get("patientId") ?? undefined,
-// 	});
-
-// 	if (!parsed.success) {
-// 		return Response.json({ error: parsed.error.flatten() }, { status: 400 });
-// 	}
-
-// 	try {
-// 		const res = await modmedClient.get("/Appointment", { params: parsed.data });
-// 		return Response.json(res.data);
-// 	} catch (err) {
-// 		const apiErr = toApiError(err);
-// 		return Response.json({ error: apiErr }, { status: apiErr.status });
-// 	}
-// }
-
-// export async function POST(req: NextRequest) {
-// 	try {
-// 		const body = await req.json();
-// 		const res = await modmedClient.post("/Appointment", body);
-// 		return Response.json(res.data, { status: 201 });
-// 	} catch (err) {
-// 		const apiErr = toApiError(err);
-// 		return Response.json({ error: apiErr }, { status: apiErr.status });
-// 	}
-// }
-
-// export async function PUT(req: NextRequest) {
-// 	try {
-// 		const body = await req.json();
-// 		const res = await modmedClient.put(`/Appointment/${body.id}`, body);
-// 		return Response.json(res.data);
-// 	} catch (err) {
-// 		const apiErr = toApiError(err);
-// 		return Response.json({ error: apiErr }, { status: apiErr.status });
-// 	}
-// }
-
-// export async function DELETE(req: NextRequest) {
-// 	const { searchParams } = new URL(req.url);
-// 	const id = searchParams.get("id");
-// 	if (!id) return Response.json({ error: "Missing id" }, { status: 400 });
-// 	try {
-// 		const res = await modmedClient.delete(`/Appointment/${id}`);
-// 		return Response.json(res.data);
-// 	} catch (err) {
-// 		const apiErr = toApiError(err);
-// 		return Response.json({ error: apiErr }, { status: apiErr.status });
-// 	}
-// }
-
-
-
-
-
-
-
-
-
-
-
-
 import { NextRequest } from "next/server";
 import { z } from "zod";
 import { modmedClient, toApiError } from "@/lib/http";
@@ -107,15 +28,15 @@ export async function GET(req: NextRequest) {
   try {
     const token = await getAccessToken();
 
-    // console.log("🔑 Using access token:", token);
+    // console.log("Using access token:", token);
     const res = await modmedClient.get("/Appointment", { params: parsed.data });
     
-    console.log("🔗 Outgoing ModMed URL:", res.config.url);
-    console.log("✅ Response from ModMed:", res.data);
+    // console.log("Outgoing ModMed URL:", res.config.url);
+    // console.log("Response from ModMed:", res.data);
     return Response.json(res.data);
   }
   catch (err) {
-    console.error("❌ ModMed API call failed:", err);
+    // console.error("ModMed API call failed:", err);
     const apiErr = toApiError(err);
     return Response.json({ error: apiErr }, { status: apiErr.status });
   } 
@@ -137,10 +58,10 @@ export async function POST(req: NextRequest) {
       }
     });
     
-    console.log("✅ Created appointment:", res.data);
+    // console.log("created appointment:", res.data);
     return Response.json(res.data, { status: 201 });
   } catch (err) {
-    console.error("❌ Failed to create appointment:", err);
+    // console.error("Failed to create appointment:", err);
     const apiErr = toApiError(err);
     return Response.json({ error: apiErr }, { status: apiErr.status });
   }
@@ -164,10 +85,10 @@ export async function PUT(req: NextRequest) {
       }
     });
     
-    console.log("✅ Updated appointment:", res.data);
+    // console.log("Updated appointment:", res.data);
     return Response.json(res.data);
   } catch (err) {
-    console.error("❌ Failed to update appointment:", err);
+    // console.error("Failed to update appointment:", err);
     const apiErr = toApiError(err);
     return Response.json({ error: apiErr }, { status: apiErr.status });
   }
