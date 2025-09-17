@@ -1,6 +1,6 @@
 "use client"
 import React, { useEffect, useMemo, useState, useCallback } from "react";
-import { Calendar, Clock, User, MapPin, Filter, Plus, Edit2, X, Check, AlertCircle, Loader, Search, Trash2, RefreshCw } from "lucide-react";
+import { Calendar, Clock, User, MapPin, Filter, Plus, Edit2, X, Check, AlertCircle, Loader, Search, RefreshCw } from "lucide-react";
 
 // Types
 interface Participant {

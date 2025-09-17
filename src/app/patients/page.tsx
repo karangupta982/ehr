@@ -505,7 +505,7 @@ export default function ImprovedPatientsPage() {
                         </button>
                         <button
                           onClick={() => setEditMode(false)}
-                          className="px-3 py-2 border border-gray-300 text-black text-gray-700 rounded-lg hover:bg-gray-50 text-sm transition-colors"
+                          className="px-3 py-2 border border-gray-300 text-black rounded-lg hover:bg-gray-50 text-sm transition-colors"
                         >
                           Cancel
                         </button>
@@ -603,7 +603,7 @@ export default function ImprovedPatientsPage() {
             <div className="p-6 border-t flex gap-3">
               <button
                 onClick={() => setShowAddForm(false)}
-                className="flex-1 px-4 py-2 border border-gray-300 text-black text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
+                className="flex-1 px-4 py-2 border border-gray-300 text-black  rounded-lg hover:bg-gray-50 transition-colors"
               >
                 Cancel
               </button>

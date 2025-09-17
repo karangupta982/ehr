@@ -26,7 +26,7 @@ export async function GET(req: NextRequest) {
   }
 
   try {
-    const token = await getAccessToken();
+    // const token = await getAccessToken();
 
     // console.log("Using access token:", token);
     const res = await modmedClient.get("/Appointment", { params: parsed.data });
