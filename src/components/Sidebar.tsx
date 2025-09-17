@@ -1,5 +1,5 @@
+"use client"
 import Link from "next/link";
-
 const NavItem = ({ href, label }: { href: string; label: string }) => (
   <Link href={href} className="group flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-white/10 transition">
     <span className="h-5 w-5 rounded bg-gradient-to-br from-indigo-500 to-fuchsia-500 opacity-80 group-hover:opacity-100" />

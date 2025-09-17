@@ -63,35 +63,35 @@ export default function PatientsPage() {
       <div className="grid gap-3 grid-cols-1 md:grid-cols-4 items-end">
         <label className="text-sm">
           <div className="mb-1">First name</div>
-          <input className="border px-2 py-2 rounded w-full" value={firstName} onChange={(e) => setFirstName(e.target.value)} />
+          <input className="input px-3 py-2 w-full" value={firstName} onChange={(e) => setFirstName(e.target.value)} />
         </label>
         <label className="text-sm">
           <div className="mb-1">Last name</div>
-          <input className="border px-2 py-2 rounded w-full" value={lastName} onChange={(e) => setLastName(e.target.value)} />
+          <input className="input px-3 py-2 w-full" value={lastName} onChange={(e) => setLastName(e.target.value)} />
         </label>
         <label className="text-sm">
           <div className="mb-1">Filter by ID</div>
-          <input className="border px-2 py-2 rounded w-full" value={filterId} onChange={(e) => setFilterId(e.target.value)} />
+          <input className="input px-3 py-2 w-full" value={filterId} onChange={(e) => setFilterId(e.target.value)} />
         </label>
         <label className="text-sm">
           <div className="mb-1">Filter by nickname</div>
-          <input className="border px-2 py-2 rounded w-full" value={filterNickname} onChange={(e) => setFilterNickname(e.target.value)} />
+          <input className="input px-3 py-2 w-full" value={filterNickname} onChange={(e) => setFilterNickname(e.target.value)} />
         </label>
       </div>
 
       <div className="hidden">
         <label className="text-sm">
           <div className="mb-1">Filter by ID</div>
-          <input className="border px-2 py-2 rounded w-full" value={filterId} onChange={(e) => setFilterId(e.target.value)} />
+          <input className="input px-3 py-2 w-full" value={filterId} onChange={(e) => setFilterId(e.target.value)} />
         </label>
         <label className="text-sm">
           <div className="mb-1">Filter by nickname</div>
-          <input className="border px-2 py-2 rounded w-full" value={filterNickname} onChange={(e) => setFilterNickname(e.target.value)} />
+          <input className="input px-3 py-2 w-full" value={filterNickname} onChange={(e) => setFilterNickname(e.target.value)} />
         </label>
       </div>
 
       {loading && <div>Loading...</div>}
-      {error && <div className="text-red-600">{error}</div>}
+      {error && <div className="text-red-400">{error}</div>}
 
       <div className="grid lg:grid-cols-3 gap-6">
         <div className="lg:col-span-2 grid gap-4" style={{ gridTemplateColumns: "repeat(auto-fill, minmax(260px, 1fr))" }}>
@@ -147,7 +147,7 @@ export default function PatientsPage() {
                     {Object.entries(form).map(([key, value]) => (
                       <label key={key} className="text-xs">
                         <div className="mb-1 capitalize">{key.replaceAll("_", " ")}</div>
-                        <input disabled={!editMode} className={`border border-white/10 px-3 py-2 rounded-xl w-full bg-white/10 text-white placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500`} value={String(value ?? "")} onChange={(e) => setForm({ ...form, [key]: e.target.value })} />
+                        <input disabled={!editMode} className={`input px-3 py-2 w-full focus:outline-none focus:ring-2 focus:ring-indigo-500`} value={String(value ?? "")} onChange={(e) => setForm({ ...form, [key]: e.target.value })} />
                       </label>
                     ))}
                   </div>
@@ -155,25 +155,25 @@ export default function PatientsPage() {
                     <div className="flex items-center gap-3 mt-2">
                       <button
                         disabled={saving}
-                        className={`border border-indigo-400 px-4 py-2 rounded-xl ${saving ? "bg-indigo-400/70" : "bg-indigo-600 hover:bg-indigo-700"} text-white`}
-                      onClick={async () => {
-                        if (!selectedPatient) return;
-                        setSaving(true);
-                        setSaveError(null);
-                        const optimistic = { ...selectedPatient, ...form } as Patient;
-                        setPatients(patients.map((pp) => (String(pp.id) === String(optimistic.id) ? optimistic : pp)));
-                        const res = await fetch(`/api/cerbo/patients/${selectedPatient.id}`, {
-                          method: "PUT",
-                          headers: { "Content-Type": "application/json" },
-                          body: JSON.stringify(form),
-                        });
-                        if (!res.ok) {
-                          setSaveError("Save failed");
-                        } else {
-                          setEditMode(false);
-                        }
-                        setSaving(false);
-                      }}
+                        className={`px-4 py-2 rounded-xl ${saving ? "bg-indigo-400/70" : "btn-primary"}`}
+                        onClick={async () => {
+                          if (!selectedPatient) return;
+                          setSaving(true);
+                          setSaveError(null);
+                          const optimistic = { ...selectedPatient, ...form } as Patient;
+                          setPatients(patients.map((pp) => (String(pp.id) === String(optimistic.id) ? optimistic : pp)));
+                          const res = await fetch(`/api/cerbo/patients/${selectedPatient.id}`, {
+                            method: "PATCH",
+                            headers: { "Content-Type": "application/json" },
+                            body: JSON.stringify(form),
+                          });
+                          if (!res.ok) {
+                            setSaveError("Save failed");
+                          } else {
+                            setEditMode(false);
+                          }
+                          setSaving(false);
+                        }}
                       >
                         {saving ? "Saving..." : "Save changes"}
                       </button>
@@ -207,63 +207,7 @@ export default function PatientsPage() {
                   </div>
                 </section>
 
-                <section className="space-y-2">
-                  <div className="font-medium text-white border-b border-white/10 pb-2">Medical Conditions</div>
-                  <ul className="list-disc pl-4 text-sm">
-                    {(selectedPatient.tags || []).filter((t) => (t.tag_category || "").toLowerCase().includes("medical condition")).map((t, idx) => (
-                      <li key={idx} className="text-gray-300">{t.name}</li>
-                    ))}
-                  </ul>
-                  <div className="flex items-center gap-2">
-                    <input className="border border-white/10 px-3 py-2 rounded-xl w-full bg-white/10 text-white placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500" placeholder="Add condition" value={conditionInput} onChange={(e) => setConditionInput(e.target.value)} />
-                    {/* <button className="text-xs border border-white/10 px-3 py-2 rounded-xl bg-white/10 hover:bg-white/20" onClick={async () => {
-                      const name = conditionInput.trim();
-                      if (!name || !selectedPatient) return;
-                      await fetch(`/api/cerbo/patients/${selectedPatient.id}/conditions`, {
-                        method: "POST",
-                        headers: { "Content-Type": "application/json" },
-                        body: JSON.stringify({ name }),
-                      });
-                      const newTags = [...(selectedPatient.tags || []), { name, tag_category: "Medical Condition" }];
-                      const updated = { ...selectedPatient, tags: newTags } as Patient;
-                      setPatients(patients.map((pp) => (String(pp.id) === String(updated.id) ? updated : pp)));
-                      setConditionInput("");
-                    }}>Add</button> */}
-
-                  <button
-                    className="ml-2 text-xs px-3 py-2 rounded-xl bg-indigo-600 text-white 
-                              hover:bg-indigo-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                    disabled={!conditionInput.trim()}
-                    onClick={async () => {
-                      const name = conditionInput.trim();
-                      if (!name || !selectedPatient) return;
-
-                      try {
-                        await fetch(`/api/cerbo/patients/${selectedPatient.id}/conditions`, {
-                          method: "POST",
-                          headers: { "Content-Type": "application/json" },
-                          body: JSON.stringify([
-                            { name, tag_category: "Medical Condition" }
-                          ]),
-                        });
-
-                        // Update local state
-                        const newTags = [...(selectedPatient.tags || []), { name, tag_category: "Medical Condition" }];
-                        const updated = { ...selectedPatient, tags: newTags } as Patient;
-                        setPatients(patients.map((pp) => (String(pp.id) === String(updated.id) ? updated : pp)));
-                        setConditionInput("");
-                      } catch (err) {
-                        console.error("Failed to add condition", err);
-                        alert("Something went wrong while adding condition");
-                      }
-                    }}
-                  >
-                    Add
-                  </button>
-
-                  </div>
-                </section>
-
+                
                 
               </div>
             </div>
