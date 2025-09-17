@@ -25,8 +25,8 @@ const parsed = envSchema.safeParse({
 });
 
 if (!parsed.success) {
-  console.log("env variable could not be parsed")
-  console.error("Invalid env config:", parsed.error.flatten().fieldErrors);
+  // console.log("env variable could not be parsed")
+  // console.error("Invalid env config:", parsed.error.flatten().fieldErrors);
   throw new Error("Missing environment variables");
 }
 

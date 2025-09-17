@@ -27,6 +27,12 @@ export default function Topbar() {
 							<span className="absolute -bottom-[13px] left-2 right-2 h-0.5 rounded-full bg-gradient-to-r from-emerald-400 to-cyan-400" />
 						)}
 					</Link>
+					{/* <Link href="/clinical" className={`relative px-3 py-1.5 text-sm rounded-md ${isActive("/clinical") ? "text-white" : "text-gray-200 hover:text-white hover:bg-white/10"}`}>
+						Clinical Operations
+						{isActive("/clinical") && (
+							<span className="absolute -bottom-[13px] left-2 right-2 h-0.5 rounded-full bg-gradient-to-r from-emerald-400 to-cyan-400" />
+						)}
+					</Link> */}
 				</nav>
 
 				<div className="ml-auto">

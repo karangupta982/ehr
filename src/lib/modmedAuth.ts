@@ -42,7 +42,7 @@ export async function fetchAccessToken(): Promise<string> {
       const expiresInSec: number = Number(res.data?.expires_in ?? 1500);
       accessTokenExpiresAt = Date.now() + expiresInSec * 1000;
 
-      console.log("🔑 New ModMed Access Token fetched");
+      // console.log("New ModMed Access Token fetched");
       return accessToken as string;
     } finally {
       ongoingPromise = null;
@@ -78,7 +78,7 @@ export async function refreshAccessToken(): Promise<string> {
       const expiresInSec: number = Number(res.data?.expires_in ?? 1500);
       accessTokenExpiresAt = Date.now() + expiresInSec * 1000;
 
-      console.log("🔄 Access Token refreshed");
+      // console.log("Access Token refreshed");
       return accessToken as string;
     } finally {
       ongoingPromise = null;

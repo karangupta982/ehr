@@ -33,7 +33,7 @@ export async function GET(req: NextRequest) {
   }
 }
 
-// 🔹 Create schema
+
 const createSchema = z
   .object({
     first_name: z.string().min(1),
@@ -44,7 +44,7 @@ const createSchema = z
   .strict()
   .partial({ dob: true, sex: true });
 
-// POST /api/cerbo/patients → create new patient
+
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
@@ -61,7 +61,7 @@ export async function POST(req: NextRequest) {
   }
 }
 
-// PUT /api/cerbo/patients → update patient (expects body.id)
+
 export async function PUT(req: NextRequest) {
   try {
     const body = await req.json();

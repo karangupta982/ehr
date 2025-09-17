@@ -268,7 +268,8 @@ export default function EnhancedAppointmentManager() {
       clearTimeout(timeoutId);
       
       if (!res.ok) {
-        throw new Error(`Failed to fetch appointments (${res.status}): ${res.statusText}`);
+        addToast("Appointment api is having high load. Wait for sometime.",'info')
+        // throw new Error(`Failed to fetch appointments (${res.status}): ${res.statusText}`);
       }
       
       const data = await res.json();
@@ -290,7 +291,7 @@ export default function EnhancedAppointmentManager() {
       } else {
         addToast('Unknown error occurred while loading appointments', 'error');
       }
-      console.error('Load appointments error:', error);
+      // console.error('Load appointments error:', error);
     } finally {
       setLoading(false);
       setRefreshing(false);
@@ -327,7 +328,7 @@ export default function EnhancedAppointmentManager() {
 
   // Handle ModMed API errors with comprehensive error mapping
   const handleModMedError = useCallback((error: any, operation: string = "operation") => {
-    console.error(`${operation} error:`, error);
+    // console.error(`${operation} error:`, error);
     
     try {
       // Handle FHIR OperationOutcome errors
@@ -340,28 +341,28 @@ export default function EnhancedAppointmentManager() {
           
           // Map specific ModMed error patterns
           if (diagnostics.includes("BOOKING_UNAVAILABLE") || diagnostics.includes("unavailable")) {
-            addToast("Time slot is unavailable. Please choose a different time.", 'error');
+            addToast("Time slot is unavailable. Please choose a different time.", 'info');
             return;
           }
           
           if (diagnostics.includes("appointment duration should be in increments of 5") || 
               diagnostics.includes("duration") && diagnostics.includes("increment")) {
-            addToast("Appointment duration must be in 5-minute increments.", 'error');
+            addToast("Appointment duration must be in 5-minute increments.", 'info');
             return;
           }
           
           if (diagnostics.includes("Invalid date/time format") || diagnostics.includes("date")) {
-            addToast("Invalid date format. Please check your selection.", 'error');
+            addToast("Invalid date format. Please check your selection.", 'info');
             return;
           }
           
           if (diagnostics.includes("missing required element") || diagnostics.includes("required")) {
-            addToast("Missing required information. Please fill in all fields.", 'error');
+            addToast("Missing required information. Please fill in all fields.", 'info');
             return;
           }
           
           if (diagnostics.includes("conflict") || diagnostics.includes("overlap")) {
-            addToast("Schedule conflict detected. Please choose a different time.", 'error');
+            addToast("Schedule conflict detected. Please choose a different time.", 'info');
             return;
           }
           
@@ -476,7 +477,7 @@ export default function EnhancedAppointmentManager() {
 
     // Check for conflicts
     if (hasConflict(createForm.provider, createForm.start, createForm.end)) {
-      addToast('Provider has a scheduling conflict. Please choose a different time.', 'error');
+      addToast('Provider has a scheduling conflict. Please choose a different time.', 'info');
       return;
     }
 
@@ -522,7 +523,8 @@ export default function EnhancedAppointmentManager() {
 
       if (!res.ok) {
         const errorData = await res.json();
-        throw { ...errorData, status: res.status };
+        // throw { ...errorData, status: res.status };
+        addToast("Time Slot Unavailable. Change Time slot or data")
       }
 
       const newData = await res.json();
@@ -555,12 +557,12 @@ export default function EnhancedAppointmentManager() {
     )?.actor?.reference?.split("/").pop();
 
     if (!providerId) {
-      addToast('Provider information not found', 'error');
+      addToast('Provider information not found', 'info');
       return;
     }
 
     if (hasConflict(providerId, rescheduleForm.start, rescheduleForm.end, showRescheduleModal.id)) {
-      addToast('Provider has a scheduling conflict. Please choose a different time.', 'error');
+      addToast('Provider has a scheduling conflict. Please choose a different time.', 'info');
       return;
     }
 
@@ -594,7 +596,8 @@ export default function EnhancedAppointmentManager() {
 
       if (!res.ok) {
         const errorData = await res.json();
-        throw { ...errorData, status: res.status };
+        // throw { ...errorData, status: res.status };
+        addToast("Time slot unavailable, Change time slot or data",'info')
       }
       
       // Refresh appointments after successful reschedule
@@ -631,7 +634,8 @@ export default function EnhancedAppointmentManager() {
       
       if (!res.ok) {
         const errorData = await res.json();
-        throw { ...errorData, status: res.status };
+        // throw { ...errorData, status: res.status };
+        addToast("Appointment Unavailable.", 'info')
       }
       
       // Remove appointment from local state
